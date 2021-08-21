@@ -379,8 +379,6 @@ jobs:
             cd backend
             sudo npm install
             npm audit fix --audit-level=critical --force
-            #npm run build
-            npm i -D typescript@3.5.2
             npm run build
             sudo npm run migrations > migration.log
             cat migration.log
