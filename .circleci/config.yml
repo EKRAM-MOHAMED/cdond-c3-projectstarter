@@ -253,8 +253,7 @@ jobs:
           name: frontend scan
           command: |
             cd frontend
-            npm i
-            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
 
       - notify-failure:
           env: "scan-frontend"
@@ -270,8 +269,7 @@ jobs:
           name: backend scan
           command: |
             cd backend
-            npm i
-            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
 
       - notify-failure:
           env: "scan-backend"
@@ -380,8 +378,6 @@ jobs:
             sudo npm install
 
             npm audit fix --audit-level=critical --force
-            rm -rf node_modules/*
-            sudo npm install
             npm run build
             sudo npm run migrations > migration.log
             cat migration.log
