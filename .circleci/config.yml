@@ -380,7 +380,8 @@ jobs:
             sudo npm install
 
             npm audit fix --audit-level=critical --force
-            npm i -D typescript
+            rm -rf node_modules/*
+            sudo npm install
             npm run build
             sudo npm run migrations > migration.log
             cat migration.log
