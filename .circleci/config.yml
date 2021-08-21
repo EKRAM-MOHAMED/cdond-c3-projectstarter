@@ -278,6 +278,7 @@ jobs:
 
       - notify-success:
           env: "scan-backend"
+
   deploy-infrastructure:
     docker:
       - image: cimg/base:2020.01 # chosen because got an error on tar utility not presentin amazon/aws-cli
