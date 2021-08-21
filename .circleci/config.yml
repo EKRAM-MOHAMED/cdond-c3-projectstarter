@@ -253,7 +253,8 @@ jobs:
           name: frontend scan
           command: |
             cd frontend
-            npm audit --audit-level=critical
+            npm i
+            npm audit fix --audit-level=critical --force
 
       - notify-failure:
           env: "scan-frontend"
@@ -269,7 +270,8 @@ jobs:
           name: backend scan
           command: |
             cd backend
-            npm audit --audit-level=critical
+            npm i
+            npm audit fix --audit-level=critical --force
 
       - notify-failure:
           env: "scan-backend"
