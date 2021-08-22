@@ -507,6 +507,7 @@ jobs:
             else
             return 0
             fi
+
       - run:
           name: Install AWS CLI for rollback
           when: on_fail
