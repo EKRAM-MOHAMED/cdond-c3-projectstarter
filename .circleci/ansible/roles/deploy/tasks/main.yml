@@ -16,8 +16,14 @@
 
 - name: move files to backend
   copy:
-    src: /root/project/backend
-    dest: /home/ubuntu/
+    src: /home/backend.tar.gz
+    dest: /home/ubuntu/backend.tar.gz
+
+- name: Start files
+  shell: |
+    cd /home/ubuntu/
+    tar xzvf backend.tar.gz
+    rsync -a home/circleci/project/backend .
 
 - name: Install Node modules
   shell: |
