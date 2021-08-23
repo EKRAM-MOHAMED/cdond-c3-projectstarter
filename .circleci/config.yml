@@ -473,7 +473,7 @@ jobs:
             apk add --update ansible openssh-client curl rsync nodejs npm
             pip install awscli
       - restore_cache:
-          keys: [backend-build]
+          keys: ["backend-build","backend-dist"]
       - run:
           name: Deploy backend
           command: |
