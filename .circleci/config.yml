@@ -155,6 +155,7 @@ commands:
           command: |
             export SUCCESS=$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
             
+           echo $SUCCESS
             if(( $SUCCESS==1 ));
             then
               cd backend
@@ -440,6 +441,7 @@ jobs:
             export BACKEND_IP=$(sed -n 2p .circleci/ansible/inventory.txt)
             export API_URL="http://${BACKEND_IP}:3030"
             echo ENVIRONMENT=production > "frontend/.env"
+            echo NODE_ENV=production >> "frontend/.env"
             echo API_URL=$API_URL >> "frontend/.env"
             echo $API_URL
       - run:
@@ -470,18 +472,24 @@ jobs:
           name: Install dependencies
           command: |
             apk update
-            apk add --update ansible openssh-client curl rsync nodejs npm
+            apk add --update ansible curl rsync nodejs npm tar gzip
             pip install awscli
       - restore_cache:
           keys: [backend-dist]
       - run:
           name: Deploy backend
           command: |
-            cd /home
-            tar fcz backend.tar.gz -C / home/circleci/project/backend/dist
-      - run:
-          name: Deploy backend2
-          command: |
+            echo ENVIRONMENT=production >> "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            tar -C backend -czvf artifact.tar.gz .
             export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       - revert-migrations
@@ -495,7 +503,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl
+            apk add --update curl python3 py3-pip
+            pip3 install --upgrade awscli
+            rm -rf /var/cache/apk/*
       - attach_workspace:
           at: ~/
       - run:
@@ -503,6 +513,9 @@ jobs:
           command: |
             export BACKEND_URL=$(sed -n 2p .circleci/ansible/inventory.txt)
             echo $BACKEND_URL
+            export API_URL="http://${BACKEND_IP}:3030/api/status"
+            echo "${API_URL}"
+            curl ${API_URL} 
       - run:
           name: Backend smoke test.
           command: |
@@ -515,20 +528,14 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
+                  URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"
             echo $URL
             if curl -s ${URL} | grep "Welcome"
             then
-            return 1
-            else
             return 0
+            else
+            return 1
             fi
-
-      - run:
-          name: Install AWS CLI for rollback
-          when: on_fail
-          command: |
-            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - revert-migrations
       - destroy-environment
  
@@ -580,9 +587,8 @@ jobs:
             if [ "${OldWorkflowID}" != "${CIRCLE_WORKFLOW_ID:0:7}" ]
             then
               aws s3 rm s3://udapeople-"${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name frontend-"${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name backend-"${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name cloudfront-"${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name udapeople-frontend-"${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name udapeople-backend-"${OldWorkflowID}"
             fi 
 
     
