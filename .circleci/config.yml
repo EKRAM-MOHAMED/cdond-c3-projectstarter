@@ -538,7 +538,6 @@ jobs:
             fi
       - revert-migrations
       - destroy-environment
-
  
   cloudfront-update:
     docker:
