@@ -1,0 +1,9 @@
+https://github.com/EKRAM-MOHAMED/udapeople	[URL01]
+
+http://udapeople-56177a9.s3-website-us-east-1.amazonaws.com/#/employees	[URL02]
+
+http://d81arqjbgvv7j.cloudfront.net/#/employees	[URL03]
+
+http://ec2-54-227-227-179.compute-1.amazonaws.com:3030/api/status   [URL04]
+
+http://ec2-52-91-70-127.compute-1.amazonaws.com:9090/status	[URL05]
